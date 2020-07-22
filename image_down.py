@@ -1,7 +1,6 @@
 import os
 import time
-import cairo
-import rsvg
+import base64
 from selenium import webdriver
 from selenium.webdriver import ChromeOptions
 from reportlab.graphics import renderPDF, renderPM
@@ -14,24 +13,24 @@ def send_request(req_url):
     driver.get(req_url)
 
     time.sleep(5)
-    content = driver.find_element_by_class_name('highcharts-root').get_attribute('outerHTML')
+    driver.execute_script("var canvas=document.getElementsByTagName('canvas')[0]; var image=canvas.toDataURL('image/png', 1.0); document.getElementsByTagName('canvas')[0].setAttribute('value', image);")
+    content = driver.find_element_by_tag_name('canvas').get_attribute('value')
     driver.close()
     return content
 
 
-def get_png(data):
-    img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 640, 480)
-    ctx = cairo.Context(img)
-    handle = rsvg.Handle(None, data)
-    handle.render_cairo(ctx)
-    img.write_to_png("save.png")
+def base_to_image(base_string):
+    imgdata = base64.b64decode(base_string.partition(",")[2])
+    filename = 'weather.png'
+    with open(filename, 'wb') as f:
+        f.write(imgdata)
 
 
 def main():
     response = send_request(req_url=url)
     if response is not None:
-        print(response)
-        get_png(data=response)
+        print('Success')
+        base_to_image(base_string=response)
 
 
 if __name__ == '__main__':
