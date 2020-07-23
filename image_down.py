@@ -3,7 +3,6 @@ import time
 import base64
 from selenium import webdriver
 from selenium.webdriver import ChromeOptions
-from reportlab.graphics import renderPDF, renderPM
 
 
 def send_request(req_url):
